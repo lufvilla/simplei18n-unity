@@ -10,9 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8a30766576fe5e649b19b4948310f699, type: 3}
-  m_Name: English  asdas_language
+  m_Name: English_language
   m_EditorClassIdentifier: 
   language:
     name: English
     cultures:
     - en-US
+    translations:
+    - key: play_button
+      value: Play
+    - key: stop_button
+      value: Stop

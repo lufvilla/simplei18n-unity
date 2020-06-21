@@ -21,11 +21,19 @@ namespace Simplei18n
             if(Application.isPlaying)
                 text = SimpleLocalizationManager.GetTranslationForKey(localizationKey);
         }
-        
-        protected override void Awake()
+
+        protected override void OnDestroy()
         {
-            base.Awake();
+            SimpleLocalizationManager.OnLocalizationUpdated -= RefreshLocalization;
+            base.OnDestroy();
+        }
+
+
+        protected override void Start()
+        {
+            base.Start();
             RefreshLocalization();
+            SimpleLocalizationManager.OnLocalizationUpdated += RefreshLocalization;
         }
     }
 }

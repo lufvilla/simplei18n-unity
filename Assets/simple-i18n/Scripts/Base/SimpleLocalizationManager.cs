@@ -12,16 +12,16 @@ namespace Simplei18n
     {
         public static event Action OnLocalizationUpdated = delegate {};
         public static Language Language => Instance._currentLanguage;
-        
-        public static void SetLanguage(string culture)
+
+        public static void SetLanguage(string culture, bool useDefault = true)
         {
             if (!IsInitialized)
             {
                 OnLog(LogType.Error,"Can't find culture ({0}). Localization not initialized.", culture);
                 return;
             }
-            
-            OnLocalizationUpdated?.Invoke();
+
+            Instance.SetLanguageForCulture(culture, useDefault);
         }
         
         public static string GetTranslationForKey(string key)
@@ -81,6 +81,49 @@ namespace Simplei18n
             }
         }
 
+        private void SetLanguageForCulture(string culture, bool useDefault = true)
+        {
+            Language cultureLanguage = GetLanguageForCulture(culture);
+
+            if (cultureLanguage == null)
+            {
+                if(useDefault)
+                {
+                    cultureLanguage = _config.DefaultLanguage.Language;
+                    OnLog(LogType.Warning,"No language detected for culture {0}, using default language: {1}", culture, _currentLanguage.Name);
+                }
+                else
+                {
+                    OnLog(LogType.Error, "No language for culture: {0}", culture);
+                    return;
+                }
+            }
+            
+            SetLanguage(cultureLanguage);
+        }
+
+        private void SetLanguage(Language language)
+        {
+            if (language == null)
+            {
+                OnLog(LogType.Error, "The given language is null.");
+                return;
+            }
+
+            if (language == _currentLanguage)
+            {
+                OnLog(LogType.Warning, "Setting the same language again ({0}). Omitting...", language.Name);
+                return;
+            }
+            
+            OnLog(LogType.Debug,"Setting language: {0}", language.Name);
+            
+            _currentLanguage = language;
+            _currentLanguage.GenerateCache();
+
+            OnLocalizationUpdated?.Invoke();
+        }
+
         private Language GetLanguageForCulture(string culture)
         {
             if (string.IsNullOrEmpty(culture))
@@ -98,6 +141,19 @@ namespace Simplei18n
                 .Where(x => x.Language.Cultures.Contains(culture))
                 .Select(x=> x.Language)
                 .FirstOrDefault();
+        }
+        
+        public static string GetSystemCulture()
+        {
+            return CultureInfo.InstalledUICulture.Name;
+        }
+
+        public static List<Language> GetAvailableLanguages
+        {
+            get
+            {
+                return Instance._config.Languages.Select(x => Language).ToList();
+            }
         }
 
         private void OnInitialize()
@@ -139,7 +195,7 @@ namespace Simplei18n
                 }
                 else
                 {
-                    OnLog(LogType.Warning, "No languages detected. Localization will not initialize.");
+                    OnLog(LogType.Warning, "No languages detected. Localization service will not initialize.");
                     return;
                 }
             }
@@ -147,25 +203,17 @@ namespace Simplei18n
             if (_config.AutodetectLanguage)
             {
                 string detectedCulture = GetSystemCulture();
-                
-                Language detectedLanguage = GetLanguageForCulture(detectedCulture);
 
-                if (detectedLanguage != null)
-                {
-                    _currentLanguage = detectedLanguage;
-                    OnLog(LogType.Debug,"Autodetect True! Culture: {0}. Language: {1}", detectedCulture, detectedLanguage.Name);
-                }
-                else
-                {
-                    _currentLanguage = _config.DefaultLanguage.Language;
-                    OnLog(LogType.Warning,"No language detected of culture {0}, using default language: {1}", detectedCulture, _currentLanguage.Name);
-                }
+                SetLanguageForCulture(detectedCulture);
             }
-        }
-
-        private string GetSystemCulture()
-        {
-            return CultureInfo.InstalledUICulture.Name;
+            else if(defaultLanguage != null)
+            {
+                SetLanguage(defaultLanguage.Language);
+            }
+            else
+            {
+                OnLog(LogType.Warning, "No languages to initialize. Localization service will not initialize.");
+            }
         }
     }
 }

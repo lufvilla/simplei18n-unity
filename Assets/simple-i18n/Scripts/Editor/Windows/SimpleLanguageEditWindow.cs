@@ -38,10 +38,15 @@ namespace Simplei18n
 
             DrawCultures();
             
-            EditorWindowHelper.DrawUILine(Color.gray);
+            EditorWindowHelper.DrawUILine(Color.grey);
+
+            DrawTranslations();
+            
+            EditorWindowHelper.DrawUILine(Color.grey);
+            
             if (GUILayout.Button("Save"))
             {
-                if (IsFileValid())
+                if (IsFileValid() && AreCulturesValid())
                 {
                     if (_isNew)
                         CreateAsset();
@@ -52,6 +57,35 @@ namespace Simplei18n
             
             if(!string.IsNullOrEmpty(_errors))
                 EditorGUILayout.HelpBox(_errors, MessageType.Error);
+        }
+
+        private void DrawTranslations()
+        {
+            if (_isNew)
+            {
+                EditorGUILayout.HelpBox("Save the language before start editing translations", MessageType.Info);
+            }
+            else
+            {
+                EditorGUILayout.HelpBox(string.Format("Translations: {0}\nCompletion: {1}%", _currentLanguageData.Language.RawTranslations.Count, GetCompletionRate()), MessageType.None);
+                
+                if (GUILayout.Button("Edit translations"))
+                {
+                    SimpleLocalizationTranslationWindow.ShowWindow(_currentLanguageData);
+                }
+            }
+        }
+
+        private int GetCompletionRate()
+        {
+            int completion = 0;
+
+            if (CurrentKeys.Keys.Any())
+            {
+                completion = (int)(_currentLanguageData.Language.RawTranslations.Count / (float)CurrentKeys.Keys.Count * 100f);
+            }
+
+            return completion;
         }
 
         private void DrawCultures()
@@ -127,6 +161,15 @@ namespace Simplei18n
             return isValid;
         }
 
+        private bool AreCulturesValid()
+        {
+            bool isValid = _currentLanguageData.Language.Cultures.Any();
+
+            _errors += "Select at least 1 culture to save this language\n";
+            
+            return isValid;
+        }
+
         private bool IsFileValid()
         {
             _errors = string.Empty;
@@ -143,6 +186,7 @@ namespace Simplei18n
 
         private void SaveAssetAndClose()
         {
+            AssetDatabase.RenameAsset(AssetDatabase.GetAssetPath(_currentLanguageData), string.Format("{0}_language.asset", _currentLanguageData.Language.Name));
             EditorUtility.SetDirty(_currentLanguageData);
             EditorUtility.SetDirty(CurrentConfig);
             AssetDatabase.SaveAssets();
@@ -152,7 +196,8 @@ namespace Simplei18n
 
         private void CreateAsset()
         {
-            AssetDatabase.CreateFolder(LOCALIZATION_PATH, LANGUAGES_FOLDER);
+            if(!AssetDatabase.IsValidFolder(Path.Combine(LOCALIZATION_PATH, LANGUAGES_FOLDER)))
+                AssetDatabase.CreateFolder(LOCALIZATION_PATH, LANGUAGES_FOLDER);
             AssetDatabase.CreateAsset(_currentLanguageData,  Path.Combine(LanguagesPath, string.Format("{0}_language.asset", _currentLanguageData.Language.Name)));
             CurrentConfig.Languages.Add(_currentLanguageData);
             

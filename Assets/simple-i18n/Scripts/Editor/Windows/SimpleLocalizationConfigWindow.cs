@@ -107,27 +107,50 @@ namespace Simplei18n
             }
 
             EditorGUILayout.LabelField("Available Languages:");
-            for (int i = 0; i < CurrentConfig.Languages.Count; i++)
-            {
-                var index = i;
-                EditorWindowHelper.VerticalLayout(() =>
-                {
-                    EditorGUILayout.LabelField(string.Format("- {0} ({1} cultures)", CurrentConfig.Languages[index].Language.Name, CurrentConfig.Languages[index].Language.Cultures.Count()));
-                    
-                    var rect = GUILayoutUtility.GetLastRect();
-                    if (GUI.Button(new Rect(rect.x + 150, rect.y, 40, rect.height), "Edit"))
-                    {
-                        EditOrCreateLanguage(CurrentConfig.Languages[index]);
-                    }
 
-                    if (CurrentConfig.DefaultLanguage != CurrentConfig.Languages[index])
+            for (int index = CurrentConfig.Languages.Count - 1; index >= 0; index--)
+            {
+                if (CurrentConfig.Languages[index] == null)
+                {
+                    CurrentConfig.Languages.RemoveAt(index);
+                    continue;
+                }
+
+                EditorGUILayout.BeginVertical();
+                EditorGUILayout.LabelField(string.Format("- {0} ({1} cultures)", CurrentConfig.Languages[index].Language.Name, CurrentConfig.Languages[index].Language.Cultures.Count()));
+                    
+                var rect = GUILayoutUtility.GetLastRect();
+                if (GUI.Button(new Rect(rect.x + 150, rect.y, 40, rect.height), "Edit"))
+                {
+                    EditOrCreateLanguage(CurrentConfig.Languages[index]);
+                }
+                    
+                if (CurrentConfig.DefaultLanguage != CurrentConfig.Languages[index])
+                {
+                    if (GUI.Button(new Rect(rect.x + 190, rect.y, 60, rect.height), "Remove"))
                     {
-                        if (GUI.Button(new Rect(rect.x + 190, rect.y, 90, rect.height), "Set Default"))
-                        {
-                            SetDefeaultLanguage(CurrentConfig.Languages[index]);
-                        }
+                        RemoveLanguage(CurrentConfig.Languages[index]);
+                        continue;
                     }
-                });
+                    
+                    if (GUI.Button(new Rect(rect.x + 250, rect.y, 90, rect.height), "Set Default"))
+                    {
+                        SetDefeaultLanguage(CurrentConfig.Languages[index]);
+                    }
+                }
+                EditorGUILayout.EndVertical();
+            }
+        }
+
+        private void RemoveLanguage(SimpleLanguageData languageData)
+        {
+            if (EditorUtility.DisplayDialog("Deleting language",
+                string.Format("Confirm {0} language deletion.", languageData.Language.Name), "Delete", "Cancel"))
+            {
+                CurrentConfig.Languages.Remove(languageData);
+                AssetDatabase.RemoveObjectFromAsset(languageData);
+                EditorUtility.SetDirty(CurrentConfig);
+                AssetDatabase.SaveAssets();
             }
         }
 

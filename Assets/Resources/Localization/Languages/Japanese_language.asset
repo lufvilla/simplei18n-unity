@@ -10,15 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8a30766576fe5e649b19b4948310f699, type: 3}
-  m_Name: Spanish_language
+  m_Name: Japanese_language
   m_EditorClassIdentifier: 
   language:
-    name: Spanish
+    name: Japanese
     cultures:
-    - es-MX
-    - es-ES
+    - ja-JP
     translations:
     - key: play_button
-      value: Jugar
+      value: "\u6F14\u594F\u3059\u308B"
     - key: stop_button
-      value: Parar
+      value: "\u3084\u3081\u308B"

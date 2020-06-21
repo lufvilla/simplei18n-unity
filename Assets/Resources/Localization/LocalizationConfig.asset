@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d541f87d99189f45b4725f589bf24c5, type: 3}
   m_Name: LocalizationConfig
   m_EditorClassIdentifier: 
-  autodetectLanguage: 1
-  defaultLanguage: {fileID: 11400000, guid: b32049bcc6b31f6438145f4e7e5a441d, type: 2}
+  autodetectLanguage: 0
+  defaultLanguage: {fileID: 11400000, guid: b3ba899373a3c4b409effd1d61211503, type: 2}
   languages:
-  - {fileID: 11400000, guid: 6c900d1dad8111d4b928db5e81d76383, type: 2}
+  - {fileID: 11400000, guid: 468a481df2236ae4e893a5423736c6a1, type: 2}
   - {fileID: 11400000, guid: b32049bcc6b31f6438145f4e7e5a441d, type: 2}
+  - {fileID: 11400000, guid: b3ba899373a3c4b409effd1d61211503, type: 2}
