@@ -38,14 +38,24 @@ namespace Simplei18n
 
             return rect;
         }
-        
-        public static Rect VerticalLayout(Action action)
-        {
-            Rect rect = EditorGUILayout.BeginVertical();
-            action.Invoke();
-            EditorGUILayout.EndVertical();
 
-            return rect;
+        public static bool DetectKey(KeyCode keycode)
+        {
+            Event e = Event.current;
+            switch (e.type)
+            {
+                case EventType.KeyDown:
+                {
+                    if (Event.current.keyCode == keycode)
+                    {
+                        e.Use();
+                        return true;
+                    }
+                    break;
+                }
+            }
+
+            return false;
         }
     }
 }

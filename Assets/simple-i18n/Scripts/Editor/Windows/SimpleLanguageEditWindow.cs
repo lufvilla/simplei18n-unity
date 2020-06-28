@@ -97,7 +97,7 @@ namespace Simplei18n
                 EditorGUILayout.HelpBox("Add at least one culture", MessageType.Info);
             }
 
-            for (int i = _currentLanguageData.Language.Cultures.Count() - 1; i >= 0; i--)
+            for (int i = _currentLanguageData.Language.Cultures.Count - 1; i >= 0; i--)
             {
                 var culture = _currentLanguageData.Language.Cultures[i];
                 

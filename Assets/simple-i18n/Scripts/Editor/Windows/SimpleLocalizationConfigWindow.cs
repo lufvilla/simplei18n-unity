@@ -117,7 +117,7 @@ namespace Simplei18n
                 }
 
                 EditorGUILayout.BeginVertical();
-                EditorGUILayout.LabelField(string.Format("- {0} ({1} cultures)", CurrentConfig.Languages[index].Language.Name, CurrentConfig.Languages[index].Language.Cultures.Count()));
+                EditorGUILayout.LabelField(string.Format("- {0} ({1} cultures)", CurrentConfig.Languages[index].Language.Name, CurrentConfig.Languages[index].Language.Cultures.Count));
                     
                 var rect = GUILayoutUtility.GetLastRect();
                 if (GUI.Button(new Rect(rect.x + 150, rect.y, 40, rect.height), "Edit"))
