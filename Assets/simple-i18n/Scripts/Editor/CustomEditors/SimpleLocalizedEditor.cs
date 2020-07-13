@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,9 +14,15 @@ namespace Simplei18n
         
         private SerializedProperty _localizationKey;
 
+        private Transform _transform;
+        private Vector3 _screenPos;
+        private string _errorText;
+
         private void OnEnable()
         {
             _localizationKey = serializedObject.FindProperty("localizationKey");
+
+            _transform = ((MonoBehaviour)target).transform;
 
             _selectedKeyIndex = SimpleLocalizationWindow.CurrentKeys.Keys.IndexOf(_localizationKey.stringValue);
             if(SimpleLocalizationWindow.CurrentKeys != null)
@@ -34,10 +39,22 @@ namespace Simplei18n
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void OnSceneGUI()
+        protected void OnSceneGUI()
         {
-            if (GUI.Button(new Rect( 5, 5, 60, 30), "+ Node"))
-                Debug.Log("+ Node");
+            _screenPos = HandleUtility.WorldToGUIPoint(_transform.position);
+
+            DrawHandles();
+        }
+
+        private void DrawHandles()
+        {
+            if (!string.IsNullOrEmpty(_errorText))
+            {
+                Handles.BeginGUI();
+                if (GUI.Button(new Rect(_screenPos.x - 75, _screenPos.y - 70, 150, 40), string.Format("-- Translation Error --\n{0}", _errorText)))
+                        Debug.LogWarning("Check the Simple Localized Text component and fix the error!");
+                Handles.EndGUI();
+            }
         }
 
         private void DrawCustomInspector()
@@ -59,7 +76,12 @@ namespace Simplei18n
                 
                 if (!SimpleLocalizationWindow.CurrentKeys.Keys.Contains(_localizationKey.stringValue))
                 {
+                    _errorText = "Key not found or empty";
                     EditorGUILayout.HelpBox(string.Format("Key '{0}' not found in Keys file.\nCheck your Keys files in '{1}'", _localizationKey.stringValue, SimpleLocalizationWindow.KeysFilePath), MessageType.Warning);
+                }
+                else
+                {
+                    _errorText = string.Empty;
                 }
             }
             else
@@ -70,6 +92,7 @@ namespace Simplei18n
                 {
                     _localizationKey.stringValue = _localizationKey.stringValue.Trim();
                 }
+                _errorText = "Keys file not found";
                 EditorGUILayout.HelpBox("Warning, keys file not found. Key validation is disabled.", MessageType.Warning);
             } 
             
